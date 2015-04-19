@@ -24,6 +24,8 @@ class Game {
     game.load.image('ground', 'assets/sprites/ground.png')
     game.load.image('laser', 'assets/sprites/laser.png')
     game.load.image('furniture1', 'assets/sprites/furniture1.png')
+    game.load.image('arrow', 'assets/sprites/arrow.png')
+
     game.load.spritesheet('cat', 'assets/sprites/cat.png', 64, 64, 8*8)
     game.load.spritesheet('box', 'assets/sprites/box.png', 64, 64)
 
@@ -32,6 +34,7 @@ class Game {
 
     this.cursorPos = new Phaser.Plugin.Isometric.Point3()
 
+    this.points = 0
   }
 
   create(){
@@ -54,9 +57,6 @@ class Game {
     //game.breakableGroup.enableBody = true
     //game.breakableGroup.physicsBodyType = Phaser.Plugin.Isometric.ISOARCADE
 
-    this.laser = new Laser()
-
-
     this.lvl = lvl1()
     this.colliders = {
       walls : this.lvl.walls.map(w => w.tile),
@@ -72,9 +72,41 @@ class Game {
 
     game.camera.follow(this.cat.tile)
 
+    this.laser = new Laser()
+
+    this.arrow = game.add.sprite(0, 0, 'arrow')
+    this.arrow.visible = false
   }
   update() {
     this.laser.update()
+
+      //ARROW INDICATING LASER OFF-SCREEN DIRECTION. TODO : FINISH THAT
+      /*
+    if(!this.laser.tile.inCamera && !this.arrow.visible) {
+      var isLeft, isUp, isDown, isRight = false
+      if(this.laser.tile.body.x < game.camera.view.x - game.camera.view.width / 2)
+        isLeft = true
+      else if(this.laser.tile.body.x > game.camera.view.x + game.camera.view.width / 2)
+
+      if(this.laser.tile.body.y < game.camera.view.y - game.camera.view.height / 2)
+        isUp = true
+      else if(this.laser.tile.body.y > game.camera.view.y + game.camera.view.height / 2)
+        isDown = true
+
+
+      this.arrow.visible = true
+      if( isUp) { // && !iLeft && !isRight) {
+        this.arrow.body.y = 0
+        this.arrow.body.x = 0
+        this.arrow.rotation = -90
+      } else if( isDown ) {
+        this.arrow.body.y = game.camera.view.height - this.arrow.height
+        this.arrow.rotation = +90
+      }
+    }
+    */
+
+
     this.cat.update(this.laser.tile.body.x, this.laser.tile.body.y)
 
 
@@ -96,7 +128,7 @@ class Game {
 
         if(typeof a.item == 'undefined' || typeof b.item == 'undefined') return true
 
-        if(!a.item.isCat() && ! b.item.isCat()) return true
+        if(!a.item.isCat() && !b.item.isCat()) return true
 
         var cat = a.item.isCat() ? a : b
         var other = a.item.isCat() ? b : a
@@ -109,9 +141,23 @@ class Game {
         }
 
         //console.log(vel, other.key, cat)
-        if(vel > 500) {
+        if(true || vel > 400) {
           other.body.enable = false
-          other.item.break()
+          if(other.item.break()) {
+            this.points += other.item.points
+
+            var tPos = new Phaser.Plugin.Isometric.Point3()
+            game.iso.projectXY({x: other.body.x, y: other.body.y}, tPos);
+
+            var style = { font: "20px Arial", fill: "#0AF", stroke: 'black', strokeThickness: 2, align: "center" };
+
+            var pointsTxt = game.add.text(tPos.x, tPos.y, "+"+other.item.points+" Points!", style)
+
+            game.time.events.add(1000, function() {
+              game.add.tween(pointsTxt).to({y: 0}, 1500, Phaser.Easing.Linear.None, true)
+              game.add.tween(pointsTxt).to({alpha: 0}, 1500, Phaser.Easing.Linear.None, true)
+            }, this)
+          }
 
           return false
         }
@@ -128,6 +174,8 @@ class Game {
       game.debug.text(this.laser.tile.body.x+", "+this.laser.tile.body.x, 2, 50, 'rgba(255, 255, 0, 1)')
 //this.cursorPos.x, this.cursorPos.y)
       game.debug.text(game.time.fps || '--', 2, 14, "#a7aebe")
+      game.debug.text("Points : "+this.points, 2, 34, "#FFF")
+      game.debug.text("Laser is visible : "+this.laser.tile.inCamera, 2, 74, "#FFF")
       //game.debug.text(this.cursorPos.x+", "+this.cursorPos.y, 2, 34, "#a7aebe")
       //game.debug.text(this.cat.tile.body.x+", "+this.cat.tile.body.y, 2, 54, "#a7aebe")
       //game.debug.text(Math.abs(this.cat.tile.body.velocity.x)+Math.abs(this.cat.tile.body.velocity.y), 2, 74, "#a7aebe")

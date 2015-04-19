@@ -16,8 +16,8 @@ const flatten = (input) => {
 var lvl1 = () => {
   var genArea = {x: game.world.width/2, y: game.world.height/2 }
   var grounds = flatten(
-    range(1, genArea.x, SIZE).map(x => {
-      return range(1, genArea.y, SIZE).map(y => {
+    range(SIZE, genArea.x, SIZE).map(x => {
+      return range(SIZE, genArea.y, SIZE).map(y => {
         var tile = game.add.isoSprite(
             x,
             y,
@@ -28,7 +28,7 @@ var lvl1 = () => {
         )
         tile.anchor.set(0.5, 0)
         tile.smoothed = false
-        if(((x+y) % 2) == 0)
+        if(((x+y) % 64) == 0)
           tile.tint = 0x86bfda
 
         return tile

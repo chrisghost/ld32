@@ -10,6 +10,7 @@ class Box {
     )
     //game.decorGroup.add(this.tile)
 
+   this.points = 0
     game.physics.isoArcade.enable(this.tile.body)
     this.tile.item = this
     this.tile.anchor.set(0.5, 0.5)
