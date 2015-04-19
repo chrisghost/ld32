@@ -16,7 +16,7 @@ class Game {
     game.debug.renderShadow = true
     game.stage.disableVisibilityChange = true
 
-    game.world.setBounds(0, 0, 3000, 3000)
+    game.world.setBounds(0, 0, 3136, 3136)
 
     game.plugins.add(new Phaser.Plugin.Isometric(game))
 
@@ -81,8 +81,8 @@ class Game {
 
     this.laser = new Laser()
 
-    this.arrow = game.add.sprite(0, 0, 'arrow')
-    this.arrow.visible = false
+    //this.arrow = game.add.sprite(0, 0, 'arrow')
+    //this.arrow.visible = false
   }
   update() {
     this.laser.update()
@@ -187,7 +187,7 @@ class Game {
 //this.cursorPos.x, this.cursorPos.y)
       game.debug.text(game.time.fps || '--', 2, 14, "#a7aebe")
       game.debug.text("Points : "+this.points, 2, 34, "#FFF")
-      game.debug.text("Laser is visible : "+this.laser.tile.inCamera, 2, 74, "#FFF")
+      //game.debug.text("Laser is visible : "+this.laser.tile.inCamera, 2, 74, "#FFF")
       //game.debug.text(this.cursorPos.x+", "+this.cursorPos.y, 2, 34, "#a7aebe")
       //game.debug.text(this.cat.tile.body.x+", "+this.cat.tile.body.y, 2, 54, "#a7aebe")
       //game.debug.text(Math.abs(this.cat.tile.body.velocity.x)+Math.abs(this.cat.tile.body.velocity.y), 2, 74, "#a7aebe")
