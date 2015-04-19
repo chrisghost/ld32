@@ -31,6 +31,8 @@ class Game {
     game.load.spritesheet('cat', 'assets/sprites/cat.png', 64, 64, 8*8)
     game.load.spritesheet('box', 'assets/sprites/box.png', 64, 64)
 
+    game.load.audio('meow', ['assets/sounds/meow.ogg'])
+
     game.physics.startSystem(Phaser.Plugin.Isometric.ISOARCADE)
     game.iso.anchor.setTo(0.5, 0.2)
 
@@ -55,6 +57,9 @@ class Game {
     game.catGroup.physicsBodyType = Phaser.Plugin.Isometric.ISOARCADE
     game.isoGroup.enableBody = true
     game.isoGroup.physicsBodyType = Phaser.Plugin.Isometric.ISOARCADE
+
+    this.sounds = []
+    this.sounds['meow'] = game.add.audio('meow')
 
     //game.breakableGroup.enableBody = true
     //game.breakableGroup.physicsBodyType = Phaser.Plugin.Isometric.ISOARCADE
@@ -128,14 +133,18 @@ class Game {
       (a, b) => {
         if(a == b) return false
 
+
+        var vel = Math.abs(a.body.velocity.x) + Math.abs(a.body.velocity.y)
+
+        if(vel > 100 && !this.sounds['meow'].isPlaying)
+          this.sounds['meow'].play()
+
         if(typeof a.item == 'undefined' || typeof b.item == 'undefined') return true
 
         if(!a.item.isCat() && !b.item.isCat()) return true
 
         var cat = a.item.isCat() ? a : b
         var other = a.item.isCat() ? b : a
-
-        var vel = Math.abs(a.body.velocity.x) + Math.abs(a.body.velocity.y)
 
         cat.body.velocity = {
           x: cat.body.velocity.x/2,
@@ -145,6 +154,7 @@ class Game {
         //console.log(vel, other.key, cat)
         if(vel > 400) {
           other.body.enable = false
+
           if(other.item.break()) {
             this.points += other.item.points
 
