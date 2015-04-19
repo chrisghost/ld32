@@ -39,11 +39,11 @@ var lvl1 = () => {
   )
 
   var walls = flatten([
-    range(1, genArea.x, SIZE).map( x => new Box(x, 0)),
-    range(1, genArea.y, SIZE).map( y => new Box(0, y)),
+    range(0, genArea.x, SIZE).map( x => new Box(x, 0)),
+    range(0, genArea.y, SIZE).map( y => new Box(0, y)),
 
-    range(1, genArea.x, SIZE).map( x => new Box(x, genArea.y)),
-    range(1, genArea.y, SIZE).map( y => new Box(genArea.x, y)),
+    range(0, genArea.x, SIZE).map( x => new Box(x, genArea.y)),
+    range(0, genArea.y, SIZE).map( y => new Box(genArea.x, y)),
 
     range(5*SIZE, genArea.y-5*SIZE, SIZE).map( y => new Box(SIZE*10, y)),
 
@@ -56,7 +56,28 @@ var lvl1 = () => {
     }))
   ])
 
-  var breakables = [
+  var rndSprite = () => {
+    var rnd = Math.random()
+    if(rnd  < 0.4 )
+      return 'flower'
+    else if(rnd  < 0.7 )
+      return 'bottle'
+    else
+      return 'box'
+  }
+
+  var breakables = range(0, genArea.x, SIZE).map ( x =>
+    range(0, genArea.y, SIZE).map ( y => {
+      if(Math.random() < 0.01)
+        return new Breakable(x, y, rndSprite())
+      else
+        return null
+    })
+  )
+  breakables = flatten(breakables).filter(e => e != null)
+  console.log(breakables)
+
+  /*
     new Breakable(SIZE*20, SIZE*7),
 
     new Breakable(SIZE*17, SIZE*10, 'flower', 150),
@@ -67,6 +88,8 @@ var lvl1 = () => {
 
     new Breakable(SIZE*14, SIZE*18, 'bottle', 200)
   ]
+
+  */
 
   return {
     walls : walls,
