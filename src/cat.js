@@ -1,5 +1,5 @@
-import range from 'range'
-import {SIZE} from 'constants'
+import range from 'app/range'
+import {SIZE} from 'app/constants'
 
 class Cat {
   constructor() {

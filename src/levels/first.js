@@ -1,7 +1,7 @@
-import {SIZE} from 'constants'
-import range from 'range'
-import Box from 'box'
-import Breakable from 'breakable'
+import {SIZE} from 'app/constants'
+import range from 'app/range'
+import Box from 'app/box'
+import Breakable from 'app/breakable'
 
 const flatten = (input) => {
   var flattened=[];

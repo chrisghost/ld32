@@ -1,8 +1,8 @@
 class Laser {
   constructor() {
     this.tile = game.add.isoSprite(
-        0,
-        0,
+        100,
+        100,
         0,
         'laser',
         0,

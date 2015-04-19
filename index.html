@@ -7,7 +7,38 @@
     <script type="text/javascript" src="lib/phaser.min.js"/></script>
     <script type="text/javascript" src="lib/phaser-plugin-isometric.js"></script>
   </head>
-  <body>
-    <script type="text/javascript" src="lib/require.js" data-main="app/main" ></script>
+  <body style="background-color: #bdc3c7;">
+    <!--<script type="text/javascript" src="lib/require.js" data-main="app/main" ></script>-->
+    <script type="text/javascript" src="lib/require.js"></script>
+    <div style="width:800px; text-align: center; font-family: Sans-serif" id="home">
+      <h1 style="font-size: 600%; " >Meow</h1>
+      <a style="cursor: pointer;font-size: 400%;font-style: underline" onClick="launchGame()">Launch</a>
+      <br>
+      <img src="assets/sprites/cat1.png" style="width:300px;"></img>
+      <p style="font-size:180%;">
+        Control the laser with the arrow keys.<br/>
+        The cat go towards the laser point.<br/>
+        The cat speeds up while going to the laser point<br/>
+        Make him crash into objects to get points<br/>
+      </p>
+    </div>
+    <div id="phaser"></div>"
+    <div>
+
+      <em style="font-size: 130%">The game is far from finished and there's no end. Reload to replay</em>
+      <br>
+      <br>
+      <author><a href="https://twitter.com/chradr">@chradr</a> for <a href="http://ludumdare.com/compo/2015/04/15/welcome-to-ludum-dare-32/">Ludum Dare 32</a></author>
+    </div>
   </body>
+    <script type="text/javascript">
+      function launchGame() {
+    require(["app/main"], function(Game) {
+        //import Game from 'main'
+      //console.log(main)
+      document.getElementById('home').style.display  = 'none'
+        window.g = new Game()
+    })
+      }
+    </script>
 </html>

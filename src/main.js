@@ -1,10 +1,10 @@
-import lvl1 from 'levels/first'
-import Cat from 'cat'
-import Box from 'box'
-import Breakable from 'breakable'
-import {SIZE} from 'constants'
-import range from 'range'
-import Laser from 'laser'
+import lvl1 from 'app/levels/first'
+import Cat from 'app/cat'
+import Box from 'app/box'
+import Breakable from 'app/breakable'
+import {SIZE} from 'app/constants'
+import range from 'app/range'
+import Laser from 'app/laser'
 
 class Game {
   constructor() {
@@ -183,7 +183,7 @@ class Game {
         game.isoGroup.forEach(function (tile) { game.debug.body(tile, 'rgba(255, 0, 0, 1)', false) })
         //game.breakableGroup.forEach(function (tile) { game.debug.body(tile, 'rgba(255, 0, 0, 1)', false) })
       }
-      game.debug.text(this.laser.tile.body.x+", "+this.laser.tile.body.x, 2, 50, 'rgba(255, 255, 0, 1)')
+      //game.debug.text(this.laser.tile.body.x+", "+this.laser.tile.body.x, 2, 50, 'rgba(255, 255, 0, 1)')
 //this.cursorPos.x, this.cursorPos.y)
       game.debug.text(game.time.fps || '--', 2, 14, "#a7aebe")
       game.debug.text("Points : "+this.points, 2, 34, "#FFF")
@@ -194,4 +194,4 @@ class Game {
   }
 }
 
-window.g = new Game()
+export default Game
