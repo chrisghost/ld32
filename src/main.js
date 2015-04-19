@@ -1,21 +1,31 @@
 import lvl1 from 'levels/first'
+import Cat from 'cat'
+import Box from 'box'
+import Breakable from 'breakable'
+import {SIZE} from 'constants'
+import range from 'range'
+import Laser from 'laser'
 
 class Game {
   constructor() {
-    this.cursorPos = null
     window.game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser', { preload: this.preload, create: this.create, update: this.update, render: this.render })
   }
   preload() {
 
     game.time.advancedTiming = true
-    game.debug.renderShadow = false
+    game.debug.renderShadow = true
     game.stage.disableVisibilityChange = true
+
+    game.world.setBounds(0, 0, 3000, 3000)
 
     game.plugins.add(new Phaser.Plugin.Isometric(game))
 
     //game.load.atlasJSONHash('tileset', 'assets/sprites/tileset.png', 'assets/sprites/tileset.json')
     game.load.image('ground', 'assets/sprites/ground.png')
     game.load.image('laser', 'assets/sprites/laser.png')
+    game.load.image('furniture1', 'assets/sprites/furniture1.png')
+    game.load.spritesheet('cat', 'assets/sprites/cat.png', 64, 64, 8*8)
+    game.load.spritesheet('box', 'assets/sprites/box.png', 64, 64)
 
     game.physics.startSystem(Phaser.Plugin.Isometric.ISOARCADE)
     game.iso.anchor.setTo(0.5, 0.2)
@@ -25,75 +35,102 @@ class Game {
   }
 
   create(){
+    game.physics.isoArcade.gravity.setTo(0, 0, -500)
+
+    game.groundGroup = game.add.group()
+    //game.breakableGroup = game.add.group()
     game.isoGroup = game.add.group()
-    game.water = []
+    game.catGroup = game.add.group()
+    game.decorGroup = game.add.group()
 
-    //game.physics.isoArcade.gravity.setTo(0, 0, -500)
+    game.decorGroup.enableBody = true
+    game.decorGroup.physicsBodyType = Phaser.Plugin.Isometric.ISOARCADE
 
+    game.catGroup.enableBody = true
+    game.catGroup.physicsBodyType = Phaser.Plugin.Isometric.ISOARCADE
     game.isoGroup.enableBody = true
     game.isoGroup.physicsBodyType = Phaser.Plugin.Isometric.ISOARCADE
 
-    var size = 32
+    //game.breakableGroup.enableBody = true
+    //game.breakableGroup.physicsBodyType = Phaser.Plugin.Isometric.ISOARCADE
 
-    lvl1.map( t => {
-      var tile = game.add.isoSprite(
-          t.x*size,
-          t.y*size,
-          0, //Math.random() > 0.2 ? 0 : 30,
-          'ground',
-          0,
-          game.isoGroup
-      )
-      tile.anchor.set(0.5, 0)
-      tile.smoothed = false
-      tile.body.moves = false
-    })
+    this.laser = new Laser()
 
-    this.laser = game.add.isoSprite(
-        0,
-        0,
-        1,
-        'laser',
-        0,
-        game.isoGroup
-    )
-    this.laser.anchor.set(0.5, 0)
-    this.laser.smoothed = false
-    this.laser.body.moves = true
+
+    this.lvl = lvl1()
+    this.colliders = {
+      walls : this.lvl.walls.map(w => w.tile),
+      breakables : this.lvl.breakables.map(b => b.tile)
+    }
+
+    this.cat = new Cat()
+
+    this.debug = false
+
+    game.input.keyboard.addKey(Phaser.Keyboard.D).onDown.add( () => this.debug = !this.debug , this)
+
+
+    game.camera.follow(this.cat.tile)
 
   }
   update() {
+    this.laser.update()
+    this.cat.update(this.laser.tile.body.x, this.laser.tile.body.y)
 
-    game.iso.unproject(game.input.activePointer.position, this.cursorPos)
-    this.laser.body.x = this.cursorPos.x
-    this.laser.body.y = this.cursorPos.y
-/*
-    game.isoGroup.forEach((tile) => {
-      var inBounds = tile.isoBounds.containsXY(this.cursorPos.x, this.cursorPos.y)
-      // If it does, do a little animation and tint change.
-      if (!tile.selected && inBounds) {
-        tile.selected = true
-        tile.tint = 0x86bfda
-        game.add.tween(tile).to({ isoZ: 4 }, 200, Phaser.Easing.Quadratic.InOut, true)
-      }
-      // If not, revert back to how it was.
-      else if (tile.selected && !inBounds) {
-        tile.selected = false
-        tile.tint = 0xffffff
-        game.add.tween(tile).to({ isoZ: 0 }, 200, Phaser.Easing.Quadratic.InOut, true)
-      }
+
+    game.iso.simpleSort(game.isoGroup)
+
+    //game.physics.isoArcade.collide(this.cat.tile, game.decorGroup)
+    //game.physics.isoArcade.collide(game.breakableGroup, game.decorGroup)
+    //game.physics.isoArcade.collide(game.breakableGroup, game.breakableGroup)
+
+    this.colliders.breakables.map(a => {
+      this.colliders.breakables.map(b => game.physics.isoArcade.collideSpriteVsSprite(a, b))
+      this.colliders.walls.map(b => game.physics.isoArcade.collideSpriteVsSprite(a, b))
     })
-*/
+
+    game.physics.isoArcade.collide(this.cat.tile, game.isoGroup,
+      null,//(a, b) => { return false },
+      (a, b) => {
+        if(a == b) return false
+
+        if(typeof a.item == 'undefined' || typeof b.item == 'undefined') return true
+
+        if(!a.item.isCat() && ! b.item.isCat()) return true
+
+        var cat = a.item.isCat() ? a : b
+        var other = a.item.isCat() ? b : a
+
+        var vel = Math.abs(a.body.velocity.x) + Math.abs(a.body.velocity.y)
+
+        cat.body.velocity = {
+          x: cat.body.velocity.x/2,
+          y: cat.body.velocity.y/2
+        }
+
+        //console.log(vel, other.key, cat)
+        if(vel > 500) {
+          other.body.enable = false
+          other.item.break()
+
+          return false
+        }
+        return true
+      }
+    )
+
   }
   render() {
-//      game.isoGroup.forEach(function (tile) {
-//          game.debug.body(tile, 'rgba(189, 221, 235, 0.6)', false)
-//      })
-
-      //game.debug.body(game.player.sprite.body, 'rgba(255, 255, 0, 1)', false)
+      if(this.debug) {
+        game.isoGroup.forEach(function (tile) { game.debug.body(tile, 'rgba(255, 0, 0, 1)', false) })
+        //game.breakableGroup.forEach(function (tile) { game.debug.body(tile, 'rgba(255, 0, 0, 1)', false) })
+      }
+      game.debug.text(this.laser.tile.body.x+", "+this.laser.tile.body.x, 2, 50, 'rgba(255, 255, 0, 1)')
 //this.cursorPos.x, this.cursorPos.y)
       game.debug.text(game.time.fps || '--', 2, 14, "#a7aebe")
-      game.debug.text(this.cursorPos.x+", "+this.cursorPos.y, 2, 34, "#a7aebe")
+      //game.debug.text(this.cursorPos.x+", "+this.cursorPos.y, 2, 34, "#a7aebe")
+      //game.debug.text(this.cat.tile.body.x+", "+this.cat.tile.body.y, 2, 54, "#a7aebe")
+      //game.debug.text(Math.abs(this.cat.tile.body.velocity.x)+Math.abs(this.cat.tile.body.velocity.y), 2, 74, "#a7aebe")
   }
 }
 
