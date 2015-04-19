@@ -53,7 +53,8 @@ var lvl1 = () => {
     new Breakable(180, 260),
     new Breakable(280, 350),
     new Breakable(580, 150),
-    new Breakable(80, 50)
+    new Breakable(80, 50, 'flower'),
+    new Breakable(280, 450, 'bottle')
   ]
 
   return {

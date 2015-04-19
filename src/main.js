@@ -26,6 +26,8 @@ class Game {
     game.load.image('furniture1', 'assets/sprites/furniture1.png')
     game.load.image('arrow', 'assets/sprites/arrow.png')
 
+    game.load.spritesheet('flower', 'assets/sprites/flower.png', 64, 64)
+    game.load.spritesheet('bottle', 'assets/sprites/bottle.png', 64, 64)
     game.load.spritesheet('cat', 'assets/sprites/cat.png', 64, 64, 8*8)
     game.load.spritesheet('box', 'assets/sprites/box.png', 64, 64)
 
@@ -141,7 +143,7 @@ class Game {
         }
 
         //console.log(vel, other.key, cat)
-        if(true || vel > 400) {
+        if(vel > 400) {
           other.body.enable = false
           if(other.item.break()) {
             this.points += other.item.points
